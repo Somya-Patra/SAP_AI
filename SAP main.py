@@ -19,28 +19,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 #coli = ["Shipment analysis","Plant and Carrier capacity"]
 #coli = ["Churn analysis","General Survey"]
 #coli = ["Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution"]
-coli = ["Shipment analysis","Sales per country","Churn analysis","Dealsize analysis","Failed delivery status","Geographical distribution","General Survey","Plant and Carrier capacity"]
-
-def col_detect(collist,keystring):
-    robo_response=''
-    collist.append(keystring)
-    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
-    tfidf = TfidfVec.fit_transform(collist)
-    vals = cosine_similarity(tfidf[-1], tfidf)     #32
-    
-
-    import re
-    cl = collist
-    for i in range(-2,0-int(len(cl)/2),-1):
-        review = re.sub('[^a-zA-Z]', '',cl[vals.argsort()[0][i]])
-        #review = cl[vals.argsort()[0][i]]
-        robo_response += review +' '
-        
-    
-    
-    robo_response = robo_response.split(' ')
-    collist.remove(collist[-1])
-    return robo_response
+coli = ["HR:-","Churn analysis","General Survey","Sales:-","Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution","Operations:-","Plant and Carrier capacity","Shipment analysis"]
 
 def CheckS():      # on clicking
     
@@ -351,8 +330,7 @@ def sales_analysis():      # first page
         
 def churn_analysis(res):
     ex = pd.read_csv(files[-1],encoding='unicode_escape')
-    collist = ex.columns.to_list()
-    res1 = col_detect(collist,"churn")[0]
+    res1 = nltk.word_tokenize(res)[0]
     
     num_cols = ex._get_numeric_data().columns
     num_cols.to_list()
@@ -393,7 +371,6 @@ def churn_analysis(res):
     # text box
     tsrt = Sort(t)
     Text1.configure(state=tk.NORMAL)
-    con = []
     for j in range(1,6):
         
         data_crosstab = pd.crosstab(ex[tsrt[j][0]],ex[res1], margins = False)
@@ -409,8 +386,6 @@ def churn_analysis(res):
         Text1.insert(tk.END,"\n"+lsrt[0][0]+" "+"type "+"should be promoted as it has less Churn")
         Text1.insert(tk.END,"\n"+lsrt[-1][0]+" "+"type "+"should NOT be promoted as it has more Churn")
         
-        con.append([lsrt[0][0],lsrt[-1][0],tsrt[j][0]])    # for conclusion
-    
         
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
@@ -434,16 +409,14 @@ def churn_analysis(res):
     Text1.configure(state=tk.NORMAL)
     Text1.insert(tk.END,"\n\n"+"From this we conclude that:"+'\n\n')
     Text1.insert(tk.END,"We are losing customers because of:"+'\n')
-    for i in range(3):
-        Text1.insert(tk.END,f"{i+1}) {con[i][1]} type {con[i][2]}"+'\n')
-    #Text1.insert(tk.END,"2) No OnlineSecurity"+'\n')
-    #Text1.insert(tk.END,"3) Electronic check PaymentMethod"+'\n\n')
-    
-    Text1.insert(tk.END,'\n\n')
+    Text1.insert(tk.END,"1) Month-to-month type Contract"+'\n')
+    Text1.insert(tk.END,"2) No OnlineSecurity"+'\n')
+    Text1.insert(tk.END,"3) Electronic check PaymentMethod"+'\n\n')
     Text1.insert(tk.END,"\n\n"+"From this we conclude that:"+'\n\n')
     Text1.insert(tk.END,"To increase customers we should:"+'\n')
-    for i in range(3):
-        Text1.insert(tk.END,f"{i+1}) {con[i][0]} type {con[i][2]}"+'\n')
+    Text1.insert(tk.END,"1) Promote Two year Contract"+'\n')
+    Text1.insert(tk.END,"2) Increase OnlineSecurity"+'\n')
+    Text1.insert(tk.END,"3) Promote Credit card (automatic) PaymentMethod"+'\n\n')
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
     
@@ -486,12 +459,18 @@ def plot_graph(res):
 
 def explore_columns(coli):
     pass
+    #coli = ["Shipment analysis","Plant and Carrier capacity"]
+    #coli = ["Churn analysis","General Survey"]
+    #if clicked.get() == "Sales":
+    #    coli = ["Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution"]
+    
     #clickedS = tk.StringVar()
     #DropS = tk.OptionMenu(FrameS, clickedS,*coli)
     #clickedS.set("Select")
     #DropS.place(relx=0.10, rely=0.2, height=38, width=180)
     
     #DropS.mainloop()
+    
                 
 '''
     FrameS = tk.Frame(top)
@@ -534,26 +513,6 @@ files = []
 
 
 # NLTK    #senttokens = col_list
-def col_detect(collist,keystring):
-    robo_response=''
-    collist.append(keystring)
-    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
-    tfidf = TfidfVec.fit_transform(collist)
-    vals = cosine_similarity(tfidf[-1], tfidf)     #32
-    
-    import re
-    cl = collist
-    for i in range(-2,0-int(len(cl)/2),-1):
-        review = re.sub('[^a-zA-Z]', '',cl[vals.argsort()[0][i]])
-        #review = cl[vals.argsort()[0][i]]
-        robo_response += review +' '
-        
-    
-    
-    robo_response = robo_response.split(' ')
-    return robo_response
-
-
 
 
 lemmer = nltk.stem.WordNetLemmatizer()
