@@ -16,12 +16,36 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-coli = ["Analysis 1","Analysis 2","Analysis 3","General Survey","Operation 1"]
+#coli = ["Shipment analysis","Plant and Carrier capacity"]
+#coli = ["Churn analysis","General Survey"]
+#coli = ["Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution"]
+coli = ["Shipment analysis","Sales per country","Churn analysis","Dealsize analysis","Failed delivery status","Geographical distribution","General Survey","Plant and Carrier capacity"]
+
+def col_detect(collist,keystring):
+    robo_response=''
+    collist.append(keystring)
+    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
+    tfidf = TfidfVec.fit_transform(collist)
+    vals = cosine_similarity(tfidf[-1], tfidf)     #32
+    
+
+    import re
+    cl = collist
+    for i in range(-2,0-int(len(cl)/2),-1):
+        review = re.sub('[^a-zA-Z]', '',cl[vals.argsort()[0][i]])
+        #review = cl[vals.argsort()[0][i]]
+        robo_response += review +' '
+        
+    
+    
+    robo_response = robo_response.split(' ')
+    collist.remove(collist[-1])
+    return robo_response
 
 def CheckS():      # on clicking
     
     
-    if clickedS.get()=="Analysis 1":
+    if clickedS.get()=="Dealsize analysis":
         ex = pd.read_csv(files[-1],encoding='unicode_escape')
         x = ex["SALES"]
         y = ["YEAR_ID","QUANTITYORDERED"]
@@ -37,7 +61,7 @@ def CheckS():      # on clicking
             #else:    
             #    pl = sns.barplot(  y=y[i], x= x, data=ex , ax=axes[i])
             
-        pl = sns.barplot(  y= x, x= ex["YEAR_ID"], data=ex , ax=axes[0])    
+        pl = sns.barplot(  y= ex["SALES"], x= ex["DEALSIZE"], data=ex , ax=axes[0])    
         pl = sns.barplot(  y=ex["QUANTITYORDERED"], x= ex["DEALSIZE"], data=ex , ax=axes[1])
         
             
@@ -49,21 +73,23 @@ def CheckS():      # on clicking
         
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
+        
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-        Text1.insert(tk.END,"From the YEAR_ID graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) Sales have been more in the year 2005"+'\n')
-        Text1.insert(tk.END,"2) Sales have increased from those in 2003 and 2004"+'\n\n')
+        Text1.insert(tk.END,"From the DEALSIZE graph we conclude that :"+'\n')
+        Text1.insert(tk.END,"1) Large DEALSIZE is good for sales"+'\n')
+        Text1.insert(tk.END,"2) Small DEALSIZE is not good for sales"+'\n\n')
 
         Text1.insert(tk.END,"From the QUANTITYORDERED graph we clearly see that:"+'\n')
-        Text1.insert(tk.END,"1) QUANTITYORDERED around 45 is considered large DEALSIZE"+'\n')
-        Text1.insert(tk.END,"2) Such DEALSIZE should be promoted to increase sales"+'\n')
+        Text1.insert(tk.END,"1) QUANTITYORDERED around 45 is considered Large, such DEALSIZE should be promoted to increase Sales"+'\n')
+        Text1.insert(tk.END,"2) QUANTITYORDERED around 37 is considered Medium"+'\n')
+        Text1.insert(tk.END,"3) QUANTITYORDERED around 30 is considered Small, it should be discouraged as it has the least Sales"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
         
         
         
         
-    if clickedS.get()=="Analysis 2":
+    if clickedS.get()=="Failed delivery status":
         ex = pd.read_csv(files[-1],encoding='unicode_escape')
         ex = ex[ex["STATUS"]!="Shipped"]
         y = ["TERRITORY","DEALSIZE","COUNTRY"]
@@ -100,15 +126,20 @@ def CheckS():      # on clicking
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
         Text1.insert(tk.END,"From the TERRITORY graph we conclude that :"+'\n')
         Text1.insert(tk.END,"1) Most shipments are Cancelled in the EMEA TERRITORY"+'\n')
-        Text1.insert(tk.END,"2) Least shipments are Cancelled in the APAC TERRITORY"+'\n\n')
-
+        Text1.insert(tk.END,"2) Least shipments are Cancelled in the APAC TERRITORY"+'\n')
+        Text1.insert(tk.END,"3) NO shipments are Cancelled in the JAPAN TERRITORY"+'\n\n')
+        
+        Text1.insert(tk.END,"From the DEALSIZE graph we conclude that :"+'\n')
+        Text1.insert(tk.END,"1) Large DEALSIZE should be promoted as no deals are Cancelled"+'\n')
+        Text1.insert(tk.END,"2) Small and Medium DEALSIZE should NOT be promoted as most deals are either Cancelled or On Hold"+'\n\n')
+        
         Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
         Text1.insert(tk.END,"1) In USA most deals are Cancelled or On Hold"+'\n')
         Text1.insert(tk.END,"2) Cancelled deals are highest in Sweden"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
         
-    if clickedS.get()=="Analysis 3":
+    if clickedS.get()=="Geographical distribution":
         ex = pd.read_csv(files[-1],encoding='unicode_escape')
         x = ex["SALES"]
         y = ["YEAR_ID","QUANTITYORDERED"]
@@ -143,8 +174,8 @@ def CheckS():      # on clicking
         Text1.delete("0.0",tk.END)
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
         Text1.insert(tk.END,"From the TERRITORY graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) Sales are highest in JAPAN TERRITORY"+'\n')
-        Text1.insert(tk.END,"2) Sales atre lowest in APAC TERRITORY"+'\n\n')
+        Text1.insert(tk.END,"1) Sales are highest in JAPAN TERRITORY despite less countries contributing to our sales because no shipment is Cancelled or On Hold"+'\n')
+        Text1.insert(tk.END,"2) Sales are lowest in APAC TERRITORY because it has less countries contributing to our sales and most of the shipments are In Process or Disputed"+'\n\n')
 
         Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
         Text1.insert(tk.END,"1) Australia contributes most in APAC TERRITORY"+'\n')
@@ -190,10 +221,56 @@ def CheckS():      # on clicking
         Text1.insert(tk.END,"3) Almost everyone prefers having an internet service"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
+        
+        
+    if clickedS.get()=="Plant and Carrier capacity":
+        ex = pd.read_excel(files[-1],sheet_name="OrderList",engine='openpyxl')
     
+    
+        f, axes = plt.subplots(1, 3,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
+        plt.xticks(rotation=0)
+
+        axes = axes.flatten()
+
+
+        pl = sns.barplot(data=ex, x='Plant Code',estimator=max,y='Total wt',ax = axes[0])
+        #ax.set_ylabel("Total Weight")
+        pl = sns.barplot(data=ex, x='Carrier',estimator=max,y='Total wt',ax = axes[1])
+        
+        pl = sns.barplot(data=ex, x='Plant Code',estimator=max,y='Unit quantity',ax = axes[2])
+
+
+
+        #for i in range(2):
+
+         #   pl = sns.barplot(  y=y, x= x[i], data=ex , ax=axes[i])
+
+
+        f.savefig("photo/OPplot1.jpg")
+
+        top.logo = ImageTk.PhotoImage(Image.open("photo/OPplot1.jpg"))
+        Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)    
+
+        Text1.configure(state=tk.NORMAL)
+        Text1.delete("0.0",tk.END)
+        Text1.insert(tk.END,"\n\n"+"So you are from the Operations department"+'\n\n')
+        Text1.insert(tk.END,"From the Plant Code graph we conclude that :"+'\n')
+        Text1.insert(tk.END,"1) PLANT03 plant handles the most weight for processing"+'\n')
+        Text1.insert(tk.END,"2) PLANT09 handles the second most weight for processing"+'\n\n')
+
+        Text1.insert(tk.END,"From the Carrier graph we conclude that :"+'\n')
+        Text1.insert(tk.END,"1) V444_0 carries the most weight"+'\n')
+        Text1.insert(tk.END,"2) V444_1 carries the least weight"+'\n\n')
+        
+        Text1.insert(tk.END,"From the Unit Quantity we clearly see that:"+'\n')
+        Text1.insert(tk.END,"1) PLANT03 plant handles the most Unit Quantity"+'\n')
+        Text1.insert(tk.END,"2) PLANT09 plant handles the second most Unit Quantity"+'\n')
+        Text1.configure(font=("Arial",12))
+        Text1.configure(state=tk.DISABLED)
+
         
 def operations_analysis():
-    ex = pd.read_csv(files[-1],sheet_name="OrderList",engine='openpyxl')
+    ex = pd.read_excel(files[-1],sheet_name="OrderList",engine='openpyxl')
     
     
     f, axes = plt.subplots(1, 2,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
@@ -221,13 +298,15 @@ def operations_analysis():
     Text1.configure(state=tk.NORMAL)
     Text1.delete("0.0",tk.END)
     Text1.insert(tk.END,"\n\n"+"So you are from the Operations department"+'\n\n')
-    Text1.insert(tk.END,"From the DEALSIZE graph we conclude that :"+'\n')
-    Text1.insert(tk.END,"1) Large DEALSIZE is good for sales"+'\n')
-    Text1.insert(tk.END,"2) Small DEALSIZE is not good for sales"+'\n\n')
+    Text1.insert(tk.END,"From the Origin Port graph we visualise the Origin Port and Destination Port for our product :"+'\n')
+    Text1.insert(tk.END,"1) Almost all shipments start from PORT04"+'\n')
+    Text1.insert(tk.END,"2) PORT05 is almost useless "+'\n')
+    Text1.insert(tk.END,"3) All deliveries reach PORT09 as Destination Port "+'\n\n')
 
-    Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
-    Text1.insert(tk.END,"1) Denmark has the highest sales"+'\n')
-    Text1.insert(tk.END,"2) Canada has least sales"+'\n')
+    Text1.insert(tk.END,"From the second graph we clearly see that:"+'\n')
+    Text1.insert(tk.END,"1) Higher weight shipments show no Ahead or Delay"+'\n')
+    Text1.insert(tk.END,"2) Lesser weight shipments show high Ahead and Delay"+'\n')
+    Text1.insert(tk.END,"3) So higher weight shipments should be promoted"+'\n')
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
         
@@ -239,16 +318,14 @@ def sales_analysis():      # first page
     ex = pd.read_csv(files[-1],encoding='unicode_escape')
     
     y = ex["SALES"]
-    x = ["DEALSIZE","COUNTRY"]
+    x = ["YEAR_ID","COUNTRY"]
     
     f, axes = plt.subplots(1, 2,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
     plt.xticks(rotation=30)
     
     axes = axes.flatten()
     
-    
     for i in range(2):
-        
         pl = sns.barplot(  y=y, x= x[i], data=ex , ax=axes[i])
         
         
@@ -260,9 +337,10 @@ def sales_analysis():      # first page
     Text1.configure(state=tk.NORMAL)
     Text1.delete("0.0",tk.END)
     Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-    Text1.insert(tk.END,"From the DEALSIZE graph we conclude that :"+'\n')
-    Text1.insert(tk.END,"1) Large DEALSIZE is good for sales"+'\n')
-    Text1.insert(tk.END,"2) Small DEALSIZE is not good for sales"+'\n\n')
+    Text1.insert(tk.END,"From the YEAR_ID graph we conclude that :"+'\n')
+    Text1.insert(tk.END,"1) Sales have been more in the year 2005"+'\n')
+    Text1.insert(tk.END,"2) Sales have increased from those in 2003 and 2004"+'\n\n')
+    
 
     Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
     Text1.insert(tk.END,"1) Denmark has the highest sales"+'\n')
@@ -273,7 +351,8 @@ def sales_analysis():      # first page
         
 def churn_analysis(res):
     ex = pd.read_csv(files[-1],encoding='unicode_escape')
-    res1 = nltk.word_tokenize(res)[0]
+    collist = ex.columns.to_list()
+    res1 = col_detect(collist,"churn")[0]
     
     num_cols = ex._get_numeric_data().columns
     num_cols.to_list()
@@ -314,7 +393,8 @@ def churn_analysis(res):
     # text box
     tsrt = Sort(t)
     Text1.configure(state=tk.NORMAL)
-    for j in range(1,len(tsrt)):
+    con = []
+    for j in range(1,6):
         
         data_crosstab = pd.crosstab(ex[tsrt[j][0]],ex[res1], margins = False)
         data_crosstab = data_crosstab.transpose()
@@ -329,6 +409,8 @@ def churn_analysis(res):
         Text1.insert(tk.END,"\n"+lsrt[0][0]+" "+"type "+"should be promoted as it has less Churn")
         Text1.insert(tk.END,"\n"+lsrt[-1][0]+" "+"type "+"should NOT be promoted as it has more Churn")
         
+        con.append([lsrt[0][0],lsrt[-1][0],tsrt[j][0]])    # for conclusion
+    
         
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
@@ -352,14 +434,16 @@ def churn_analysis(res):
     Text1.configure(state=tk.NORMAL)
     Text1.insert(tk.END,"\n\n"+"From this we conclude that:"+'\n\n')
     Text1.insert(tk.END,"We are losing customers because of:"+'\n')
-    Text1.insert(tk.END,"1) Month-to-month type Contract"+'\n')
-    Text1.insert(tk.END,"2) No OnlineSecurity"+'\n')
-    Text1.insert(tk.END,"3) Electronic check PaymentMethod"+'\n\n')
+    for i in range(3):
+        Text1.insert(tk.END,f"{i+1}) {con[i][1]} type {con[i][2]}"+'\n')
+    #Text1.insert(tk.END,"2) No OnlineSecurity"+'\n')
+    #Text1.insert(tk.END,"3) Electronic check PaymentMethod"+'\n\n')
+    
+    Text1.insert(tk.END,'\n\n')
     Text1.insert(tk.END,"\n\n"+"From this we conclude that:"+'\n\n')
     Text1.insert(tk.END,"To increase customers we should:"+'\n')
-    Text1.insert(tk.END,"1) Promote Two year Contract"+'\n')
-    Text1.insert(tk.END,"2) Increase OnlineSecurity"+'\n')
-    Text1.insert(tk.END,"3) Promote Credit card (automatic) PaymentMethod"+'\n\n')
+    for i in range(3):
+        Text1.insert(tk.END,f"{i+1}) {con[i][0]} type {con[i][2]}"+'\n')
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
     
@@ -450,6 +534,26 @@ files = []
 
 
 # NLTK    #senttokens = col_list
+def col_detect(collist,keystring):
+    robo_response=''
+    collist.append(keystring)
+    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
+    tfidf = TfidfVec.fit_transform(collist)
+    vals = cosine_similarity(tfidf[-1], tfidf)     #32
+    
+    import re
+    cl = collist
+    for i in range(-2,0-int(len(cl)/2),-1):
+        review = re.sub('[^a-zA-Z]', '',cl[vals.argsort()[0][i]])
+        #review = cl[vals.argsort()[0][i]]
+        robo_response += review +' '
+        
+    
+    
+    robo_response = robo_response.split(' ')
+    return robo_response
+
+
 
 
 lemmer = nltk.stem.WordNetLemmatizer()
@@ -514,7 +618,7 @@ def print_answers():
     if clicked.get()=="HR":
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
-        Text1.insert(tk.END,"So you are from HR department"+'\n\n'+ "Churn Analysis for the given dataset"+"\n"+"Following factors play a major role.")
+        Text1.insert(tk.END,"So you are from HR department"+'\n\n'+ "CHURN ANALYSIS for the given dataset"+"\n"+"Following factors play a major role.")
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
         
@@ -593,7 +697,7 @@ def print_answers():
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
      
-        plot_graph(res)
+        #plot_graph(res)
         explore_columns(coli)
         
         operations_analysis()
