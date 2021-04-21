@@ -25,7 +25,11 @@ def CheckS():      # on clicking
     
     
     if clickedS.get()=="Dealsize analysis":
-        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        try:
+            ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        except:
+            ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+        
         x = ex["SALES"]
         y = ["YEAR_ID","QUANTITYORDERED"]
         
@@ -69,7 +73,11 @@ def CheckS():      # on clicking
         
         
     if clickedS.get()=="Failed delivery status":
-        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        try:
+            ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        except:
+            ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+        
         ex = ex[ex["STATUS"]!="Shipped"]
         y = ["TERRITORY","DEALSIZE","COUNTRY"]
         
@@ -119,7 +127,11 @@ def CheckS():      # on clicking
         Text1.configure(state=tk.DISABLED)
         
     if clickedS.get()=="Geographical distribution":
-        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        try:
+            ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        except:
+            ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+        
         x = ex["SALES"]
         y = ["YEAR_ID","QUANTITYORDERED"]
         
@@ -165,7 +177,13 @@ def CheckS():      # on clicking
     
     
     if clickedS.get()=="General Survey":
-        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        
+        try:
+            ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        except:
+            ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+            
+            
         x = ex["SeniorCitizen"]
         y = ["InternetService","PaymentMethod","TechSupport"]
         
@@ -203,7 +221,10 @@ def CheckS():      # on clicking
         
         
     if clickedS.get()=="Plant and Carrier capacity":
-        ex = pd.read_excel(files[-1],sheet_name="OrderList",engine='openpyxl')
+        try:
+            ex = pd.read_csv(files[-1],encoding='unicode_escape')
+        except:
+            ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
     
     
         f, axes = plt.subplots(1, 3,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
@@ -249,7 +270,10 @@ def CheckS():      # on clicking
 
         
 def operations_analysis():
-    ex = pd.read_excel(files[-1],sheet_name="OrderList",engine='openpyxl')
+    try:
+        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+    except:
+        ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
     
     
     f, axes = plt.subplots(1, 2,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
@@ -294,7 +318,10 @@ def operations_analysis():
         
         
 def sales_analysis():      # first page
-    ex = pd.read_csv(files[-1],encoding='unicode_escape')
+    try:
+        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+    except:
+        ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
     
     y = ex["SALES"]
     x = ["YEAR_ID","COUNTRY"]
@@ -329,7 +356,12 @@ def sales_analysis():      # first page
 
         
 def churn_analysis(res):
-    ex = pd.read_csv(files[-1],encoding='unicode_escape')
+    try:
+        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+    except:
+        ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+    
+    
     res1 = nltk.word_tokenize(res)[0]
     
     num_cols = ex._get_numeric_data().columns
@@ -563,7 +595,7 @@ def print_answers():
     except: #67
 
         try:
-            ex = pd.read_excel(files[-1],sheet_name="OrderList",engine='openpyxl')
+            ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
         except:  # 67
             Text1.configure(state=tk.NORMAL)
             Text1.delete("0.0", tk.END)
