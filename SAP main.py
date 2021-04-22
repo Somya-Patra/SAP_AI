@@ -403,6 +403,7 @@ def churn_analysis(res):
     # text box
     tsrt = Sort(t)
     Text1.configure(state=tk.NORMAL)
+    con = []
     for j in range(1,6):
         
         data_crosstab = pd.crosstab(ex[tsrt[j][0]],ex[res1], margins = False)
@@ -418,6 +419,7 @@ def churn_analysis(res):
         Text1.insert(tk.END,"\n"+lsrt[0][0]+" "+"type "+"should be promoted as it has less Churn")
         Text1.insert(tk.END,"\n"+lsrt[-1][0]+" "+"type "+"should NOT be promoted as it has more Churn")
         
+        con.append([lsrt[0][0],lsrt[-1][0],tsrt[j][0]])
         
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
@@ -441,14 +443,16 @@ def churn_analysis(res):
     Text1.configure(state=tk.NORMAL)
     Text1.insert(tk.END,"\n\n"+"From this we conclude that:"+'\n\n')
     Text1.insert(tk.END,"We are losing customers because of:"+'\n')
-    Text1.insert(tk.END,"1) Month-to-month type Contract"+'\n')
-    Text1.insert(tk.END,"2) No OnlineSecurity"+'\n')
-    Text1.insert(tk.END,"3) Electronic check PaymentMethod"+'\n\n')
-    Text1.insert(tk.END,"\n\n"+"From this we conclude that:"+'\n\n')
-    Text1.insert(tk.END,"To increase customers we should:"+'\n')
-    Text1.insert(tk.END,"1) Promote Two year Contract"+'\n')
-    Text1.insert(tk.END,"2) Increase OnlineSecurity"+'\n')
-    Text1.insert(tk.END,"3) Promote Credit card (automatic) PaymentMethod"+'\n\n')
+    for i in range(3):
+    
+        Text1.insert(tk.END,f"{i+1}) {con[i][1]} type {con[i][2]}"+'\n')
+    
+    
+    Text1.insert(tk.END,"\n\n"+"To increase customers we should:"+'\n')
+    for i in range(3):
+    
+        Text1.insert(tk.END,f"{i+1}) {con[i][0]} type {con[i][2]}"+'\n')
+        
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED)
     
