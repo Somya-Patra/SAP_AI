@@ -184,19 +184,32 @@ def CheckS():      # on clicking
             ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
             
             
-        x = ex["SeniorCitizen"]
-        y = ["InternetService","PaymentMethod","TechSupport"]
+        x = ex[col_detect(ex.columns.to_list(),"seniorcitizen senior citizen old people")[0]]
+        #y = ["InternetService","PaymentMethod","TechSupport"]
+        y = [col_detect(ex.columns.to_list(),"InternetService Internet")[0],
+             col_detect(ex.columns.to_list(),"PaymentMethod Payment")[0],
+             col_detect(ex.columns.to_list(),"TechSupport Technology")[0]]
+        
+        
         
         f, axes = plt.subplots(1, 3,figsize=(20,6))                   #20,6(1,4)      9,6(2,2)
 
         
         axes = axes.flatten()
     
-    
+        con = []
         for i in range(3):
                 data_crosstab = pd.crosstab(ex[y[i]],x, margins = False)
                 pl = data_crosstab.plot.bar(stacked=True, ax=axes[i],rot=8)
             
+                d = data_crosstab.transpose()
+                c = []
+                for j in d.columns.to_list():
+                    c.append([j,d[j][0]+d[j][1]])
+                def Sort(sub_li):
+                        sub_li.sort(key = lambda x: x[1],reverse = True)
+                        return sub_li
+                con.append(Sort(c)[0][0])  ## append
             #data_crosstab = pd.crosstab(ex[y[i]],x, margins = False)
             #pl = data_crosstab.plot.bar(stacked=True, ax=axes[i],rot=0)
             #if str(ex[y[i]].dtype) == "float64" and ex[y[i]].value_counts().shape[0]>4:
@@ -210,11 +223,13 @@ def CheckS():      # on clicking
         top.logo = ImageTk.PhotoImage(Image.open("photo/HrplotG.jpg"))
         Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
         
+        
+    
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
-        Text1.insert(tk.END,"From this we conclude that:"+'\n\n')
-        Text1.insert(tk.END,"1) Fibre optics is popular among citizens irrespective of their ages"+'\n')
-        Text1.insert(tk.END,"2) Electronic Check is preffered by most people irrespective of their ages"+'\n')
+        Text1.insert(tk.END,"From this we conclude that :"+'\n\n')
+        for i in range(2):
+            Text1.insert(tk.END,f"{i+1}) {con[i]} is popular among citizens irrespective of their ages"+'\n')
         Text1.insert(tk.END,"3) Almost everyone prefers having an internet service"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
@@ -323,8 +338,13 @@ def sales_analysis():      # first page
     except:
         ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
     
-    y = ex["SALES"]
-    x = ["YEAR_ID","COUNTRY"]
+    #y = ex["SALES"]
+    #x = ["YEAR_ID","COUNTRY"]
+    
+    y = ex[col_detect(ex.columns.to_list(),"sales income revenue")[0]]
+    x = [col_detect(ex.columns.to_list(),"year_id year")[0],
+         col_detect(ex.columns.to_list(),"country")[0]]
+    
     
     f, axes = plt.subplots(1, 2,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
     plt.xticks(rotation=30)
@@ -488,7 +508,22 @@ def plot_graph(res):
     top.logo = ImageTk.PhotoImage(Image.open("photo/multiplot.jpg"))
     Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
     
+def col_detect(collist,keystring):
+    robo_response=[]
+    collist.append(keystring)
+    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
+    tfidf = TfidfVec.fit_transform(collist)
+    vals = cosine_similarity(tfidf[-1], tfidf)     #32
     
+    import re
+    cl = collist
+    for i in range(-2,0-int(len(cl)/2),-1):
+        review = re.sub('[^a-zA-Z_]', '',cl[vals.argsort()[0][i]])
+        #review = cl[vals.argsort()[0][i]]
+        robo_response.append(review)
+        
+    
+    return robo_response    
     
     
     
