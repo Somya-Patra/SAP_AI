@@ -30,22 +30,18 @@ def CheckS():      # on clicking
         except:
             ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
         
-        x = ex["SALES"]
-        y = ["YEAR_ID","QUANTITYORDERED"]
+        
+        x = ex[col_detect(ex.columns.to_list(),"dealsize deal size")[0]]
+        y = [col_detect(ex.columns.to_list(),"sales income revenue")[0],
+         col_detect(ex.columns.to_list(),"quantityordered quantity")[0]]
         
         f, axes = plt.subplots(1, 2,figsize=(20,6))                   #20,6(1,4)      9,6(2,2)
         
         axes = axes.flatten()
     
     
-        #for i in range(2):
-            #if str(ex[y[i]].dtype) == "float64" and ex[y[i]].value_counts().shape[0]>4:
-            #    pl = sns.lineplot(  y=y[i], x= x, data=ex , ax=axes[i])
-            #else:    
-            #    pl = sns.barplot(  y=y[i], x= x, data=ex , ax=axes[i])
-            
-        pl = sns.barplot(  y= ex["SALES"], x= ex["DEALSIZE"], data=ex , ax=axes[0])    
-        pl = sns.barplot(  y=ex["QUANTITYORDERED"], x= ex["DEALSIZE"], data=ex , ax=axes[1])
+        pl = sns.barplot(  x=x , y=ex[y[0]] , data=ex , ax=axes[0])    
+        pl = sns.barplot(  x=x, y= ex[y[1]], data=ex , ax=axes[1])
         
             
         
@@ -360,17 +356,17 @@ def sales_analysis():      # first page
     top.logo = ImageTk.PhotoImage(Image.open("photo/Salesplot1.jpg"))
     Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)    
         
-    Text1.configure(state=tk.NORMAL)
-    Text1.delete("0.0",tk.END)
-    Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-    Text1.insert(tk.END,"From the YEAR_ID graph we conclude that :"+'\n')
-    Text1.insert(tk.END,"1) Sales have been more in the year 2005"+'\n')
-    Text1.insert(tk.END,"2) Sales have increased from those in 2003 and 2004"+'\n\n')
+    Text1.configure(state=tk.NORMAL)             
+    Text1.delete("0.0",tk.END) 
+    Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')                    
+    Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'year_id year')[0]} graph we conclude that :"+'\n')
+    Text1.insert(tk.END,f"1) {col_detect(ex.columns.to_list(),'sales income revenue')[0]} have been more in the year {ex[col_detect(ex.columns.to_list(),'year_id year')[0]].value_counts().idxmin()}"+'\n')
+    Text1.insert(tk.END,f"2) {col_detect(ex.columns.to_list(),'sales income revenue')[0]} have been minimum in the year {ex[col_detect(ex.columns.to_list(),'year_id year')[0]].value_counts().idxmax()}"+'\n\n')
     
 
-    Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
-    Text1.insert(tk.END,"1) Denmark has the highest sales"+'\n')
-    Text1.insert(tk.END,"2) Canada has least sales"+'\n')
+    Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'country')[0]} graph we clearly see that:"+'\n')
+    Text1.insert(tk.END,f"1) {ex[col_detect(ex.columns.to_list(),'country')[0]].value_counts().idxmin()} has the highest {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
+    Text1.insert(tk.END,f"2) {ex[col_detect(ex.columns.to_list(),'country')[0]].value_counts().idxmax()} has least {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
     Text1.configure(font=("Arial",12))
     Text1.configure(state=tk.DISABLED) 
 
@@ -915,8 +911,7 @@ Button5.configure(pady="0")
 Button5.configure(text='''Cancel uploads''', command = clear_files)
 
 Frame1 = tk.Frame(top)
-Frame1.place(relx=0.039, rely=0.575, relheight=0.268
-        , relwidth=0.251)
+Frame1.place(relx=0.039, rely=0.575, relheight=0.268, relwidth=0.251)
 Frame1.configure(relief='groove')
 Frame1.configure(borderwidth="2")
 Frame1.configure(relief="groove")
@@ -926,8 +921,7 @@ Frame1.configure(highlightcolor="black")
 
 
 FrameS = tk.Frame(top)
-FrameS.place(relx=0.400, rely=0.575, relheight=0.268
-        , relwidth=0.171)
+FrameS.place(relx=0.400, rely=0.575, relheight=0.268, relwidth=0.171)
 FrameS.configure(relief='groove')
 FrameS.configure(borderwidth="2")
 FrameS.configure(relief="groove")
