@@ -40,8 +40,9 @@ def CheckS():      # on clicking
         axes = axes.flatten()
     
     
-        pl = sns.barplot(  x=x , y=ex[y[0]] , data=ex , ax=axes[0])    
-        pl = sns.barplot(  x=x, y= ex[y[1]], data=ex , ax=axes[1])
+        for i in range(2):
+            pl = sns.barplot(  x=x , y=ex[y[i]] , data=ex , ax=axes[i])    
+        #pl = sns.barplot(  x=x, y= ex[y[1]], data=ex , ax=axes[1])
         
             
         
@@ -54,14 +55,18 @@ def CheckS():      # on clicking
         Text1.delete("0.0",tk.END)
         
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-        Text1.insert(tk.END,"From the DEALSIZE graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) Large DEALSIZE is good for sales"+'\n')
-        Text1.insert(tk.END,"2) Small DEALSIZE is not good for sales"+'\n\n')
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} graph we conclude that :"+'\n')
+        Text1.insert(tk.END,f"1) {ex[col_detect(ex.columns.to_list(),'dealsize deal size')[0]].value_counts().idxmin()} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) {ex[col_detect(ex.columns.to_list(),'dealsize deal size')[0]].value_counts().idxmax()} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is not good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n\n')
 
-        Text1.insert(tk.END,"From the QUANTITYORDERED graph we clearly see that:"+'\n')
-        Text1.insert(tk.END,"1) QUANTITYORDERED around 45 is considered Large, such DEALSIZE should be promoted to increase Sales"+'\n')
-        Text1.insert(tk.END,"2) QUANTITYORDERED around 37 is considered Medium"+'\n')
-        Text1.insert(tk.END,"3) QUANTITYORDERED around 30 is considered Small, it should be discouraged as it has the least Sales"+'\n')
+        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'quantityordered quantity')[0], columns=[col_detect(ex.columns.to_list(),'dealsize deal size')[0]], aggfunc=np.average)
+        table.iloc[0,1],table.columns[1]
+        
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'quantityordered quantity')[0]} graph we clearly see that:"+'\n')
+        
+        for i in range(3):
+            Text1.insert(tk.END,f"1) {col_detect(ex.columns.to_list(),'quantityordered quantity')[0]} around {int(table.iloc[0,i])} is considered {table.columns[i]}"+'\n')
+        
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
         
