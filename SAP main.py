@@ -60,7 +60,7 @@ def CheckS():      # on clicking
         Text1.insert(tk.END,f"2) {ex[col_detect(ex.columns.to_list(),'dealsize deal size')[0]].value_counts().idxmax()} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is not good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n\n')
 
         table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'quantityordered quantity')[0], columns=[col_detect(ex.columns.to_list(),'dealsize deal size')[0]], aggfunc=np.average)
-        table.iloc[0,1],table.columns[1]
+    
         
         Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'quantityordered quantity')[0]} graph we clearly see that:"+'\n')
         
@@ -80,7 +80,13 @@ def CheckS():      # on clicking
             ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
         
         ex = ex[ex["STATUS"]!="Shipped"]
-        y = ["TERRITORY","DEALSIZE","COUNTRY"]
+        
+        #y = ["TERRITORY","DEALSIZE","COUNTRY"]
+        
+        y = [col_detect(ex.columns.to_list(),"territory")[0],
+             col_detect(ex.columns.to_list(),"dealsize deal")[0],
+             col_detect(ex.columns.to_list(),"country")[0]]
+        
         
         f, axes = plt.subplots(1, 3,figsize=(20,6))                   #20,6(1,4)      9,6(2,2)
         plt.xticks(rotation=10)
@@ -88,19 +94,19 @@ def CheckS():      # on clicking
         axes = axes.flatten()
     
         for i in range(3):
-            data_crosstab = pd.crosstab(ex[y[i]],ex["STATUS"], margins = False)
+            data_crosstab = pd.crosstab(ex[y[i]],ex[col_detect(ex.columns.to_list(),"status")[0]], margins = False)
             pl = data_crosstab.plot.bar(stacked=True,ax = axes[i],rot=10)
         
-        #data_crosstab = pd.crosstab(y["TERRITORY"],y["STATUS"], margins = False)
-        #pl = data_crosstab.plot.bar(stacked=True,ax = axes[0])
-        
-        #data_crosstab = pd.crosstab(y["TERRITORY"],y["STATUS"], margins = False)
-        #pl = data_crosstab.plot.bar(stacked=True,ax = axes[0])
-        
-            #if str(ex[y[i]].dtype) == "float64" and ex[y[i]].value_counts().shape[0]>4:
-            #    pl = sns.lineplot(  y=y[i], x= x, data=ex , ax=axes[i])
-            #else:    
-            #    pl = sns.barplot(  y=y[i], x= x, data=ex , ax=axes[i])
+       
+        # 1st conclusion 
+        data_crosstab = pd.crosstab(ex[y[0]],ex[col_detect(ex.columns.to_list(),"status")[0]], margins = False)
+        l = []
+        def Sort3(sub_li):
+                sub_li.sort(key = lambda x: x[2],reverse = True)
+                return sub_li
+        for i in range(data_crosstab.shape[0]):
+            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
+        l = Sort3(l)
             
             
         f.savefig("photo/Salesplot3.jpg")
@@ -112,18 +118,43 @@ def CheckS():      # on clicking
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-        Text1.insert(tk.END,"From the TERRITORY graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) Most shipments are Cancelled in the EMEA TERRITORY"+'\n')
-        Text1.insert(tk.END,"2) Least shipments are Cancelled in the APAC TERRITORY"+'\n')
-        Text1.insert(tk.END,"3) NO shipments are Cancelled in the JAPAN TERRITORY"+'\n\n')
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'territory')[0]} graph we conclude that :"+'\n')
+            
+        Text1.insert(tk.END,f"1) Most shipments are {l[0][0]} in the {l[0][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) Less shipments are {l[1][0]} in the {l[1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"3) Least shipments are {l[-1][0]} in the {l[-1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
         
-        Text1.insert(tk.END,"From the DEALSIZE graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) Large DEALSIZE should be promoted as no deals are Cancelled"+'\n')
-        Text1.insert(tk.END,"2) Small and Medium DEALSIZE should NOT be promoted as most deals are either Cancelled or On Hold"+'\n\n')
+        Text1.insert(tk.END,'\n\n')
         
-        Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
-        Text1.insert(tk.END,"1) In USA most deals are Cancelled or On Hold"+'\n')
-        Text1.insert(tk.END,"2) Cancelled deals are highest in Sweden"+'\n')
+        # 2nd conclusion
+        
+        data_crosstab = pd.crosstab(ex[y[1]],ex[col_detect(ex.columns.to_list(),"status")[0]], margins = False)
+        l = []
+        def Sort3(sub_li):
+                sub_li.sort(key = lambda x: x[2],reverse = True)
+                return sub_li
+        for i in range(data_crosstab.shape[0]):
+            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
+        l = Sort3(l)
+        
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'dealsize deal')[0]} graph we conclude that :"+'\n')
+        Text1.insert(tk.END,f"1) {l[-1][1]} {col_detect(ex.columns.to_list(),'dealsize deal')[0]} should be promoted as no deals are {l[0][0]}"+'\n')
+        Text1.insert(tk.END,f"2) {l[0][1]} {col_detect(ex.columns.to_list(),'dealsize deal')[0]} should NOT be promoted as most deals are {l[-1][0]}"+'\n\n')
+        
+        
+        # 3rd conclusion
+        data_crosstab = pd.crosstab(ex[y[2]],ex[col_detect(ex.columns.to_list(),"status")[0]], margins = False)
+        l = []
+        def Sort3(sub_li):
+                sub_li.sort(key = lambda x: x[2],reverse = True)
+                return sub_li
+        for i in range(data_crosstab.shape[0]):
+            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
+        l = Sort3(l)
+        
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'country')[0]} graph we clearly see that:"+'\n')
+        Text1.insert(tk.END,f"1) In {l[0][1]} most deals are Cancelled"+'\n')
+        Text1.insert(tk.END,f"2) Cancelled deals are least in {l[-1][1]}"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
         
@@ -133,8 +164,7 @@ def CheckS():      # on clicking
         except:
             ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
         
-        x = ex["SALES"]
-        y = ["YEAR_ID","QUANTITYORDERED"]
+        x = ex[col_detect(ex.columns.to_list(),'sales income revenue')[0]]
         
         f, axes = plt.subplots(1, 2,figsize=(20,6))                   #20,6(1,4)      9,6(2,2)
         
@@ -142,17 +172,10 @@ def CheckS():      # on clicking
         axes = axes.flatten()
         
     
-        #for i in range(2):
-            #if str(ex[y[i]].dtype) == "float64" and ex[y[i]].value_counts().shape[0]>4:
-            #    pl = sns.lineplot(  y=y[i], x= x, data=ex , ax=axes[i])
-            #else:    
-            #    pl = sns.barplot(  y=y[i], x= x, data=ex , ax=axes[i])
             
-        pl = sns.barplot(  y= ex["SALES"], x= ex["TERRITORY"], data=ex , ax=axes[0])    
-        #pl = sns.barplot(  y=ex["QUANTITYORDERED"], x= ex["DEALSIZE"], data=ex , ax=axes[1])
+        pl = sns.barplot(  y= x, x= ex[col_detect(ex.columns.to_list(),'territory')[0]], data=ex , ax=axes[0])    
         
-        data_crosstab = pd.crosstab(ex['TERRITORY'],ex['COUNTRY'], margins = False)
-        #data_crosstab = data_crosstab.transpose()
+        data_crosstab = pd.crosstab(ex[col_detect(ex.columns.to_list(),'territory')[0]],ex[col_detect(ex.columns.to_list(),'country')[0]], margins = False)
         pl = data_crosstab.plot.bar(stacked=True,ax=axes[1],rot=0)
         
             
@@ -162,17 +185,69 @@ def CheckS():      # on clicking
         top.logo = ImageTk.PhotoImage(Image.open("photo/Salesplot3.jpg"))
         Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
         
+        ###############
+        '''
+        # 1st conclusion 
+        data_crosstab = pd.crosstab(ex[y[0]],ex[col_detect(ex.columns.to_list(),"status")[0]], margins = False)
+        l = []
+        def Sort3(sub_li):
+                sub_li.sort(key = lambda x: x[2],reverse = True)
+                return sub_li
+        for i in range(data_crosstab.shape[0]):
+            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
+        l = Sort3(l)
+            
+            
+        
+        
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-        Text1.insert(tk.END,"From the TERRITORY graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) Sales are highest in JAPAN TERRITORY despite less countries contributing to our sales because no shipment is Cancelled or On Hold"+'\n')
-        Text1.insert(tk.END,"2) Sales are lowest in APAC TERRITORY because it has less countries contributing to our sales and most of the shipments are In Process or Disputed"+'\n\n')
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'territory')[0]} graph we conclude that :"+'\n')
+            
+        Text1.insert(tk.END,f"1) Most shipments are {l[0][0]} in the {l[0][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) Less shipments are {l[1][0]} in the {l[1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"3) Least shipments are {l[-1][0]} in the {l[-1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        
+        Text1.insert(tk.END,'\n\n')
+        
+        #########
+        '''
+        # 1st conclusion
+        l = []
+        
+        def Sort3(sub_li):
+                sub_li.sort(key = lambda x: x[2],reverse = True)
+                return sub_li
+        for i in range(data_crosstab.shape[0]):
+            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
+        l = Sort3(l)
+        
+        Text1.configure(state=tk.NORMAL)
+        Text1.delete("0.0",tk.END)
+        Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'territory')[0]} graph we conclude that :"+'\n')
+        Text1.insert(tk.END,f"1) Sales are highest in {l[-1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) Sales are lowest in {l[0][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n\n')
 
-        Text1.insert(tk.END,"From the COUNTRY graph we clearly see that:"+'\n')
-        Text1.insert(tk.END,"1) Australia contributes most in APAC TERRITORY"+'\n')
-        Text1.insert(tk.END,"2) Spain and Switzerland contributes most in EMEA TERRITORY"+'\n')
-        Text1.insert(tk.END,"3) Japan and Singapore contributes most in JAPAN TERRITORY"+'\n')
+        
+        # 2nd conclusion
+        data_crosstab = pd.crosstab(ex[col_detect(ex.columns.to_list(),"territory")[0]],ex[col_detect(ex.columns.to_list(),"country")[0]], margins = False)
+        l = []
+        def Sort3(sub_li):
+                sub_li.sort(key = lambda x: x[2],reverse = True)
+                return sub_li
+        for i in range(data_crosstab.shape[0]):
+            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
+        l = Sort3(l)
+        
+        data_crosstab_t = data_crosstab.transpose()
+        #data_crosstab_t["EMEA"].idxmax()
+        
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'country')[0]} graph we clearly see that:"+'\n')
+        Text1.insert(tk.END,f"1) {data_crosstab_t[l[0][1]].idxmax()} contributes most in {l[0][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) {data_crosstab_t[l[1][1]].idxmax()} contributes most in {l[1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
+        Text1.insert(tk.END,f"3) {data_crosstab_t[l[2][1]].idxmax()} contributes most in {l[2][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)    
     
