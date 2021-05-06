@@ -19,7 +19,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 #coli = ["Shipment analysis","Plant and Carrier capacity"]
 #coli = ["Churn analysis","General Survey"]
 #coli = ["Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution"]
-coli = ["HR:-","Churn analysis","General Survey","Sales:-","Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution","Operations:-","Plant and Carrier capacity","Shipment analysis"]
+coli = ["HR:-",
+        "Churn analysis","General Survey",
+        "Sales:-","Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution",
+        "Operations:-","Shipment analysis","Plant and Carrier capacity"]
 
 def CheckS():      # on clicking
     
@@ -54,12 +57,19 @@ def CheckS():      # on clicking
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
         
+        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'sales revenue income')[0], 
+                               columns=[col_detect(ex.columns.to_list(),'dealsize deal size')[0]], 
+                               aggfunc=np.average)
+        table = table.transpose()
+        
         Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
         Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} graph we conclude that :"+'\n')
-        Text1.insert(tk.END,f"1) {ex[col_detect(ex.columns.to_list(),'dealsize deal size')[0]].value_counts().idxmin()} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
-        Text1.insert(tk.END,f"2) {ex[col_detect(ex.columns.to_list(),'dealsize deal size')[0]].value_counts().idxmax()} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is not good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n\n')
+        Text1.insert(tk.END,f"1) {table.idxmax()[0]} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) {table.idxmin()[0]} {col_detect(ex.columns.to_list(),'dealsize deal size')[0]} is not good for {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n\n')
 
-        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'quantityordered quantity')[0], columns=[col_detect(ex.columns.to_list(),'dealsize deal size')[0]], aggfunc=np.average)
+        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'quantityordered quantity')[0], 
+                               columns=[col_detect(ex.columns.to_list(),'dealsize deal size')[0]], 
+                               aggfunc=np.average)
     
         
         Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'quantityordered quantity')[0]} graph we clearly see that:"+'\n')
@@ -373,9 +383,13 @@ def operations_analysis():
     axes = axes.flatten()
     
     
-    pl = sns.barplot(data=ex, x='Origin Port',estimator=max,y='Total wt', hue='Destination Port',ax=axes[0])
-    #ax.set_ylabel("Total Weight")
-    pl = sns.scatterplot(data=ex, x='Ship ahead day count',y='Total wt',estimator=max,hue="Ship Late Day count",ax=axes[1])
+    pl = sns.barplot(data=ex, x=col_detect(ex.columns.to_list(),"OriginPort origin port")[0],
+                     estimator=max,y=col_detect(ex.columns.to_list(),"total wt weight")[0],
+                     hue=col_detect(ex.columns.to_list(),"Destination Port")[0],ax=axes[0])
+
+    pl = sns.scatterplot(data=ex, x=col_detect(ex.columns.to_list(),"Ship ahead day count")[0],
+                         y=col_detect(ex.columns.to_list(),"total wt weight")[0],estimator=max,
+                         hue=col_detect(ex.columns.to_list(),"Ship Late Day count")[0],ax=axes[1])
     
     
     
@@ -387,15 +401,36 @@ def operations_analysis():
     f.savefig("photo/OPplot1.jpg")
         
     top.logo = ImageTk.PhotoImage(Image.open("photo/OPplot1.jpg"))
-    Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)    
+    Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
+    
+    
+    table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'total wt weight')[0], 
+                               columns=[col_detect(ex.columns.to_list(),'origin port')[0]], 
+                               aggfunc=np.sum)
+    table = table.transpose()
+    
         
     Text1.configure(state=tk.NORMAL)
     Text1.delete("0.0",tk.END)
     Text1.insert(tk.END,"\n\n"+"So you are from the Operations department"+'\n\n')
-    Text1.insert(tk.END,"From the Origin Port graph we visualise the Origin Port and Destination Port for our product :"+'\n')
-    Text1.insert(tk.END,"1) Almost all shipments start from PORT04"+'\n')
-    Text1.insert(tk.END,"2) PORT05 is almost useless "+'\n')
-    Text1.insert(tk.END,"3) All deliveries reach PORT09 as Destination Port "+'\n\n')
+    Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'OriginPort origin port')[0]} graph we visualise the {col_detect(ex.columns.to_list(),'OriginPort origin port')[0]} and {col_detect(ex.columns.to_list(),'destination port')[0]} for our product :"+'\n')
+    Text1.insert(tk.END,f"1) Almost all shipments start from {table.idxmax()[0]}"+'\n')
+    Text1.insert(tk.END,f"2) {table.idxmin()[0]} is almost useless "+'\n')
+    
+    data_crosstab = pd.crosstab(ex[col_detect(ex.columns.to_list(),"origin port")[0]],
+                            ex[col_detect(ex.columns.to_list(),"Destination port")[0]], 
+                            margins = False)
+
+    d = data_crosstab.transpose()
+    c = []
+    for i in d.columns.to_list():
+        c.append([i,d[i][0]])
+    #def Sort(sub_li):
+    #        sub_li.sort(key = lambda x: x[1],reverse = True)
+    #        return sub_li
+    Sort(c)[0][0]
+    
+    Text1.insert(tk.END,f"3) All deliveries reach {Sort(c)[0][0]} as {col_detect(ex.columns.to_list(),'Destination port')[0]}"+'\n\n')
 
     Text1.insert(tk.END,"From the second graph we clearly see that:"+'\n')
     Text1.insert(tk.END,"1) Higher weight shipments show no Ahead or Delay"+'\n')
@@ -594,7 +629,7 @@ def col_detect(collist,keystring):
     import re
     cl = collist
     for i in range(-2,0-int(len(cl)/2),-1):
-        review = re.sub('[^a-zA-Z_]', '',cl[vals.argsort()[0][i]])
+        review = re.sub('[^a-zA-Z_ ]', '',cl[vals.argsort()[0][i]])
         #review = cl[vals.argsort()[0][i]]
         robo_response.append(review)
         
@@ -618,42 +653,6 @@ def explore_columns(coli):
     
     #DropS.mainloop()
     
-                
-'''
-    FrameS = tk.Frame(top)
-    FrameS.place(relx=0.400, rely=0.575, relheight=0.268
-            , relwidth=0.171)
-    FrameS.configure(relief='groove')
-    FrameS.configure(borderwidth="2")
-    FrameS.configure(relief="groove")
-    FrameS.configure(background="#d9d9d9")
-    FrameS.configure(highlightbackground="#d9d9d9")
-    FrameS.configure(highlightcolor="black")
-
-    LabelS = tk.Label(FrameS)
-    LabelS.place(relx=0.190, rely=0.057, height=28, width=120)
-    LabelS.configure(activebackground="#f9f9f9")
-    LabelS.configure(activeforeground="black")
-    LabelS.configure(background="#d9d9d9")
-    LabelS.configure(disabledforeground="#a3a3a3")
-    LabelS.configure(foreground="#000000")
-    LabelS.configure(highlightbackground="#d9d9d9")
-    LabelS.configure(highlightcolor="black")
-    LabelS.configure(text="Select Analysis",font=("Verdana",9))
-
-    clickedS = tk.StringVar()
-    DropS = tk.OptionMenu(FrameS, clickedS,*coli)
-    clickedS.set("Select")
-    DropS.place(relx=0.10, rely=0.2, height=38, width=180)
-
-    
-    Check_button = tk.Button(FrameS)
-    Check_button.place(relx=0.10, rely=0.7, height=38, width=100)
-    Check_button.configure(text="Check",command=CheckS)
-    
-'''
-    
-
 
 
 files = []
