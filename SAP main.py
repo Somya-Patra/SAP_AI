@@ -370,6 +370,75 @@ def CheckS():      # on clicking
         Text1.configure(state=tk.DISABLED)
 
         
+def finance_analysis():      # first page
+    try:
+        ex = pd.read_csv(files[-1],encoding='unicode_escape')
+    except:
+        ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+    
+    #y = ex["SALES"]
+    #x = ["YEAR_ID","COUNTRY"]
+    
+    
+    
+    f, axes = plt.subplots(1, 2,figsize=(20,6))                  #20,6(1,4)      9,6(2,2)
+    plt.xticks(rotation=30)
+    
+    axes = axes.flatten()
+    
+    #ex['Date'] = pd.to_datetime(ex['Date'], errors='coerce')
+    #ex["Month"] = ex['Date'].dt.month
+    if col_detect(ex.columns.to_list(),"month")[0]=="Month":
+        plt.xticks(rotation=30)
+        sns.barplot(x = col_detect(ex.columns.to_list(),"month")[0], 
+                    y = col_detect(ex.columns.to_list(),"amount")[0], ci = None, data = ex, ax=axes[0])
+        
+    else:
+        ex[col_detect(ex.columns.to_list(),"date")[0]] = pd.to_datetime(ex[col_detect(ex.columns.to_list(),"date")[0]], errors='coerce')
+        ex["Month"] = ex[col_detect(ex.columns.to_list(),"date")[0]].dt.month
+        plt.xticks(rotation=30)
+        sns.barplot(x = "Month", 
+                    y = "Amount", ci = None, data = ex, ax=axes[0])
+    
+    plt.xticks(rotation=10)
+    sns.barplot( y="Amount", x= col_detect(ex.columns.to_list(),"entity department")[0], data=ex, ci= None)
+    
+    
+    
+    
+    #for i in range(2):
+    #    pl = sns.barplot(  y=y, x= x[i], data=ex , ax=axes[i])
+        
+        
+    f.savefig("photo/financeplot1.jpg")
+        
+    top.logo = ImageTk.PhotoImage(Image.open("photo/financeplot1.jpg"))
+    Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)    
+        
+    Text1.configure(state=tk.NORMAL)             
+    Text1.delete("0.0",tk.END) 
+    Text1.insert(tk.END,"\n\n"+"So you are from the finance department"+'\n\n')                    
+    Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'year_id year')[0]} graph we conclude that :"+'\n')
+    Text1.insert(tk.END,f"1) Amount is minimum in the {col_detect(ex.columns.to_list(),'year_id year')[0]} {ex[col_detect(ex.columns.to_list(),'year_id year')[0]].value_counts().idxmin()}"+'\n')
+    Text1.insert(tk.END,f"2) Amount is maximum in the {col_detect(ex.columns.to_list(),'year_id year')[0]} {ex[col_detect(ex.columns.to_list(),'year_id year')[0]].value_counts().idxmax()}"+'\n\n')
+    
+    
+    table = pd.pivot_table(ex, values="Amount", 
+                               columns=[col_detect(ex.columns.to_list(),'entity department')[0]], 
+                               aggfunc=np.sum)
+    table = table.transpose()
+    
+    
+    Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'entity department')[0]} graph we clearly see that:"+'\n')
+    Text1.insert(tk.END,f"1) Amount is minimum in {table.idxmin()[0]}"+'\n')
+    Text1.insert(tk.END,f"2) Amount is maximum in {table.idxmax()[0]}"+'\n\n')
+    Text1.configure(font=("Arial",12))
+    Text1.configure(state=tk.DISABLED)        
+        
+        
+
+
+        
 def operations_analysis():
     try:
         ex = pd.read_csv(files[-1],encoding='unicode_escape')
@@ -432,12 +501,21 @@ def operations_analysis():
     
     Text1.insert(tk.END,f"3) All deliveries reach {Sort(c)[0][0]} as {col_detect(ex.columns.to_list(),'Destination port')[0]}"+'\n\n')
 
-    Text1.insert(tk.END,"From the second graph we clearly see that:"+'\n')
-    Text1.insert(tk.END,"1) Higher weight shipments show no Ahead or Delay"+'\n')
-    Text1.insert(tk.END,"2) Lesser weight shipments show high Ahead and Delay"+'\n')
-    Text1.insert(tk.END,"3) So higher weight shipments should be promoted"+'\n')
-    Text1.configure(font=("Arial",12))
-    Text1.configure(state=tk.DISABLED)
+    try:
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'total wt weight')[0]} graph we clearly see that:"+'\n')
+        Text1.insert(tk.END,f"1) {ex[col_detect(ex.columns.to_list(),'ahead delay')[0]].value_counts().idxmin()} {col_detect(ex.columns.to_list(),'ahead delay')[0]} has the least {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) {ex[col_detect(ex.columns.to_list(),'ahead delay')[0]].value_counts().idxmax()} {col_detect(ex.columns.to_list(),'ahead delay')[0]} has highest {col_detect(ex.columns.to_list(),'sales income revenue')[0]}"+'\n')
+        Text1.configure(font=("Arial",12))
+        Text1.configure(state=tk.DISABLED)
+
+    except:
+    
+        Text1.insert(tk.END,"From the second graph we clearly see that:"+'\n')
+        Text1.insert(tk.END,"1) Higher weight shipments show no Ahead or Delay"+'\n')
+        Text1.insert(tk.END,"2) Lesser weight shipments show high Ahead and Delay"+'\n')
+        Text1.insert(tk.END,"3) So higher weight shipments should be promoted"+'\n')
+        Text1.configure(font=("Arial",12))
+        Text1.configure(state=tk.DISABLED)
         
         
         
@@ -831,8 +909,9 @@ def print_answers():
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
         
-        plot_graph(res)
+        
         explore_columns(coli)
+        finance_analysis()
         
     
   
