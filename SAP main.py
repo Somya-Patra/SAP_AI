@@ -425,9 +425,9 @@ def operations_analysis():
     c = []
     for i in d.columns.to_list():
         c.append([i,d[i][0]])
-    #def Sort(sub_li):
-    #        sub_li.sort(key = lambda x: x[1],reverse = True)
-    #        return sub_li
+    def Sort(sub_li):
+            sub_li.sort(key = lambda x: x[1],reverse = True)
+            return sub_li
     Sort(c)[0][0]
     
     Text1.insert(tk.END,f"3) All deliveries reach {Sort(c)[0][0]} as {col_detect(ex.columns.to_list(),'Destination port')[0]}"+'\n\n')
