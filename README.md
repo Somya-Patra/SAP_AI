@@ -5,6 +5,8 @@ Currently, people are hired as Data Analysts to analyze the data and find releva
 Hence, there is a serious need to develop an artificial tool which can analyze the data and draw user oriented insights efficiently for both small and big enterprises
 
 
+
+SOLUTION:
 We are proposing an AI based tool that can take a data set, identify patterns in the data, can interpret the result and then produce an output story that is understandable and relevant to a business user based on the context of the data
 Our model is efficient in analyzing data on behalf of users and generates smart feeds using Machine Learning , Natural Language Processing and Tkinter for GUI
 As our model is not hard coded to any specific input, it is capable of analyzing datasets of different departments and generate solutions as per their requirements
@@ -14,3 +16,8 @@ Our model is completely based upon Python libraries and ML/NLP techniques, and c
 Our solution is a user-friendly interactive tool and has personalization feature that generates information relevant to a given user. The solution has been made reconfigurable in order to generate additional insights based on end user’s needs. 
 
 
+![](slide_ss/Screenshot%20(295).png)
+
+WORKING SCREENSHOTS
+![](slide_ss/Screenshot%20(277).png)
+![](slide_ss/Screenshot%20(274).png)
