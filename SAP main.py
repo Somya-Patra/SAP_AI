@@ -195,34 +195,6 @@ def CheckS():      # on clicking
         top.logo = ImageTk.PhotoImage(Image.open("photo/Salesplot3.jpg"))
         Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
         
-        ###############
-        '''
-        # 1st conclusion 
-        data_crosstab = pd.crosstab(ex[y[0]],ex[col_detect(ex.columns.to_list(),"status")[0]], margins = False)
-        l = []
-        def Sort3(sub_li):
-                sub_li.sort(key = lambda x: x[2],reverse = True)
-                return sub_li
-        for i in range(data_crosstab.shape[0]):
-            l.append([data_crosstab.columns[0],data_crosstab.index[i],data_crosstab.iloc[i][0]])
-        l = Sort3(l)
-            
-            
-        
-        
-        Text1.configure(state=tk.NORMAL)
-        Text1.delete("0.0",tk.END)
-        Text1.insert(tk.END,"\n\n"+"So you are from the sales department"+'\n\n')
-        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'territory')[0]} graph we conclude that :"+'\n')
-            
-        Text1.insert(tk.END,f"1) Most shipments are {l[0][0]} in the {l[0][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
-        Text1.insert(tk.END,f"2) Less shipments are {l[1][0]} in the {l[1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
-        Text1.insert(tk.END,f"3) Least shipments are {l[-1][0]} in the {l[-1][1]} {col_detect(ex.columns.to_list(),'territory')[0]}"+'\n')
-        
-        Text1.insert(tk.END,'\n\n')
-        
-        #########
-        '''
         # 1st conclusion
         l = []
         
@@ -333,12 +305,18 @@ def CheckS():      # on clicking
 
         axes = axes.flatten()
 
-
-        pl = sns.barplot(data=ex, x='Plant Code',estimator=max,y='Total wt',ax = axes[0])
+        #col_detect(ex.columns.to_list(),'Unit quantity')[0]
+        pl = sns.barplot(data=ex, x=col_detect(ex.columns.to_list(),"Plant Code")[0],
+                         estimator=max,
+                         y=col_detect(ex.columns.to_list(),'Total wt')[0],ax = axes[0])
         #ax.set_ylabel("Total Weight")
-        pl = sns.barplot(data=ex, x='Carrier',estimator=max,y='Total wt',ax = axes[1])
+        pl = sns.barplot(data=ex, x=col_detect(ex.columns.to_list(),'Carrier')[0],
+                         estimator=max,
+                         y=col_detect(ex.columns.to_list(),'Total wt')[0],ax = axes[1])
         
-        pl = sns.barplot(data=ex, x='Plant Code',estimator=max,y='Unit quantity',ax = axes[2])
+        pl = sns.barplot(data=ex, x=col_detect(ex.columns.to_list(),"plant code")[0],
+                         estimator=max,
+                         y=col_detect(ex.columns.to_list(),'Unit quantity')[0],ax = axes[2])
 
 
 
@@ -355,17 +333,43 @@ def CheckS():      # on clicking
         Text1.configure(state=tk.NORMAL)
         Text1.delete("0.0",tk.END)
         Text1.insert(tk.END,"\n\n"+"So you are from the Operations department"+'\n\n')
-        Text1.insert(tk.END,"From the Plant Code graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) PLANT03 plant handles the most weight for processing"+'\n')
-        Text1.insert(tk.END,"2) PLANT09 handles the second most weight for processing"+'\n\n')
-
-        Text1.insert(tk.END,"From the Carrier graph we conclude that :"+'\n')
-        Text1.insert(tk.END,"1) V444_0 carries the most weight"+'\n')
-        Text1.insert(tk.END,"2) V444_1 carries the least weight"+'\n\n')
         
-        Text1.insert(tk.END,"From the Unit Quantity we clearly see that:"+'\n')
-        Text1.insert(tk.END,"1) PLANT03 plant handles the most Unit Quantity"+'\n')
-        Text1.insert(tk.END,"2) PLANT09 plant handles the second most Unit Quantity"+'\n')
+        # getting minimum and maximum values
+        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'total wt weight')[0], 
+                               columns=[col_detect(ex.columns.to_list(),'plant code')[0]], 
+                               aggfunc=np.sum)
+        table = table.transpose()
+
+        #table.idxmin()[0]
+        
+        
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'plant code')[0]} graph we conclude that :"+'\n')
+        Text1.insert(tk.END,f"1) {table.idxmax()[0]} handles the most {col_detect(ex.columns.to_list(),'total wt weight')[0]} for processing"+'\n')
+        Text1.insert(tk.END,f"2) {table.idxmin()[0]} handles the least {col_detect(ex.columns.to_list(),'total wt weight')[0]} for processing"+'\n\n')
+        
+        # getting minimum and maximum values
+        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'total wt weight')[0], 
+                               columns=[col_detect(ex.columns.to_list(),'carrier ship')[0]], 
+                               aggfunc=np.sum)
+        table = table.transpose()
+
+        #table.idxmin()[0]
+
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'carrier ship')[0]} graph we conclude that :"+'\n')
+        Text1.insert(tk.END,f"1) {table.idxmax()[0]} carries the most {col_detect(ex.columns.to_list(),'total wt weight')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) {table.idxmin()[0]} carries the least {col_detect(ex.columns.to_list(),'total wt weight')[0]}"+'\n\n')
+        
+        # getting minimum and maximum values
+        table = pd.pivot_table(ex, values=col_detect(ex.columns.to_list(),'unit quantity')[0], 
+                               columns=[col_detect(ex.columns.to_list(),'plant code')[0]], 
+                               aggfunc=np.sum)
+        table = table.transpose()
+
+        #table.idxmin()[0]
+        
+        Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'unit quantity')[0]} we clearly see that:"+'\n')
+        Text1.insert(tk.END,f"1) {table.idxmax()[0]} plant handles the most {col_detect(ex.columns.to_list(),'unit quantity')[0]}"+'\n')
+        Text1.insert(tk.END,f"2) {table.idxmin()[0]} plant handles the least {col_detect(ex.columns.to_list(),'unit quantity')[0]}"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
 
