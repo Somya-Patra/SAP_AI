@@ -21,8 +21,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 #coli = ["Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution"]
 coli = ["HR:-",
         "Churn analysis","General Survey",
-        "Sales:-","Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution",
-        "Operations:-","Shipment analysis","Plant and Carrier capacity"]
+        "SALES:-","Sales per country","Dealsize analysis","Failed delivery status","Geographical distribution",
+        "OPERATIONS:-","Shipment analysis","Plant and Carrier capacity","FINANCE:-",
+        "Departmental analysis","Expenses analysis"]
 
 def CheckS():      # on clicking
     
@@ -372,6 +373,77 @@ def CheckS():      # on clicking
         Text1.insert(tk.END,f"2) {table.idxmin()[0]} plant handles the least {col_detect(ex.columns.to_list(),'unit quantity')[0]}"+'\n')
         Text1.configure(font=("Arial",12))
         Text1.configure(state=tk.DISABLED)
+        
+        
+        
+    if clickedS.get()=="Expenses analysis":
+          try:
+                ex = pd.read_csv(files[-1],encoding='unicode_escape')
+          
+          except:
+                ex = pd.read_excel(files[-1],sheet_name=0,engine='openpyxl')
+                
+          #x = ex[col_detect(ex.columns.to_list(),'sales income revenue')[0]]
+        
+          #f, axes = plt.plot(figsize=(20,6))                   #20,6(1,4)      9,6(2,2)
+        
+          #plt.legend(loc="upper right")
+          #axes = axes.flatten()
+        
+    
+            
+          #pl = sns.barplot(  y= x, x= ex[col_detect(ex.columns.to_list(),'territory')[0]], data=ex , ax=axes[0])    
+        
+          #data_crosstab = pd.crosstab(ex[col_detect(ex.columns.to_list(),'territory')[0]],ex[col_detect(ex.columns.to_list(),'country')[0]], margins = False)
+          #pl = data_crosstab.plot.bar(stacked=True,ax=axes[1],rot=0)
+        
+          
+          try:
+            l1 = ex[col_detect(ex.columns.to_list(),"expense type")[0]].value_counts().sort_values(ascending=False).index[:5].to_list()
+            l2 = ex[col_detect(ex.columns.to_list(),"expense area")[0]].value_counts().sort_values(ascending=False).index[:5].to_list()
+           
+          except:
+            l1 = ex[col_detect(ex.columns.to_list(),"expense type")[0]].value_counts().sort_values(ascending=False).index[:].to_list()
+            l2 = ex[col_detect(ex.columns.to_list(),"expense area")[0]].value_counts().sort_values(ascending=False).index[:].to_list()
+        
+          ex = ex[ex[col_detect(ex.columns.to_list(),"expense type")[0]].isin(l1)]
+          ex = ex[ex[col_detect(ex.columns.to_list(),"expense area")[0]].isin(l2)]
+
+          data_crosstab = pd.crosstab(ex[col_detect(ex.columns.to_list(),"expense type")[0]],
+                                       ex[col_detect(ex.columns.to_list(),"expense area")[0]], 
+                                          margins = False)
+          
+        
+          pl = data_crosstab.plot.bar(stacked=True,rot=0,figsize=(20,6)).get_figure()
+
+          #patches, labels = ax.get_legend_handles_labels()
+          #ax.legend(patches, labels, loc='best')
+
+          # crosstab ,maximum minimum
+          d = data_crosstab
+          c = []
+          for i in d.columns.to_list():
+              c.append([i,d[i][0]])
+          def Sort(sub_li):
+                  sub_li.sort(key = lambda x: x[1],reverse = True)
+                  return sub_li,d.index[0]
+          li,cri = Sort(c)
+          
+        
+            
+        
+          pl.savefig("photo/financeplot3.jpg")
+        
+          top.logo = ImageTk.PhotoImage(Image.open("photo/financeplot3.jpg"))
+          Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
+        
+        
+       
+        
+        
+            
+        
+        
 
         
 def finance_analysis():      # first page
