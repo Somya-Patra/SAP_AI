@@ -437,14 +437,19 @@ def CheckS():      # on clicking
           top.logo = ImageTk.PhotoImage(Image.open("photo/financeplot3.jpg"))
           Canvas1.create_image(0, 0, anchor=tk.NW, image=top.logo)
         
+          
+          Text1.configure(state=tk.NORMAL)
+          Text1.delete("0.0",tk.END)  
+          Text1.insert(tk.END,f"From the {col_detect(ex.columns.to_list(),'expense type')[0]} graph we clearly see that:"+'\n')
+          Text1.insert(tk.END,f"1) {cri} is highest for {li[0][0]}"+'\n')
+          Text1.insert(tk.END,f"2) {cri} is lowest for {li[-1][0]}"+'\n')
+          Text1.configure(font=("Arial",12))
+          Text1.configure(state=tk.DISABLED)
+        
         
        
         
-        
-            
-        
-        
-
+    
         
 def finance_analysis():      # first page
     try:
